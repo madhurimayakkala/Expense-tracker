@@ -1,0 +1,119 @@
+<!-- eslint-disable -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-light">
+  <div class="container my-5">
+    <h1 class="text-center mb-4">💰 Expense Tracker</h1>
+
+    <!-- Add Expense Form -->
+    <div class="card p-4 shadow-sm mb-4">
+      <form action="/add" method="POST">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <input type="text" name="title" class="form-control" placeholder="Expense Title" required>
+          </div>
+          <div class="col-md-4">
+            <input type="number" name="amount" class="form-control" placeholder="Amount" required>
+          </div>
+          <div class="col-md-4">
+            <input type="text" name="category" class="form-control" placeholder="Category" required>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-primary w-50">Add Expense</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Expense Table -->
+    <div class="card p-4 shadow-sm mb-4">
+      <h3 class="mb-3">All Expenses</h3>
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+          <tr>
+            <td>{{ expense[0] }}</td>
+            <td>{{ expense[1] }}</td>
+            <td>{{ expense[2] }}</td>
+            <td>{{ expense[3] }}</td>
+            <td>{{ expense[4] }}</td>
+            <td>
+              <a href="/delete/{{ expense[0] }}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Expense Chart -->
+    <div class="card p-4 shadow-sm">
+      <h3 class="mb-3">Expense Breakdown</h3>
+      <canvas id="expenseChart" height="100"></canvas>
+    </div>
+  </div>
+
+  <!-- Chart.js Script -->
+  <script>
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+
+    const labels = {{ labels|tojson }};
+    const values = {{ values|tojson }};
+    const colors = {{ colors|tojson }};
+
+    const data = {
+      labels: labels,
+      datasets: [{
+        label: 'Expenses',
+        data: values,
+        backgroundColor: colors,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+        borderWidth: 1
+      }]
+    };
+
+    const config = {
+      type: 'bar',
+      data: data,
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          legend: {
+            display: true
+          },
+          title: {
+            display: true,
+            text: 'Expenses by Category'
+          }
+        }
+      }
+    };
+
+    new Chart(ctx, config);
+  </script>
+
+</body>
+</html>
